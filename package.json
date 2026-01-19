@@ -1,0 +1,19 @@
+{
+  "name": "@cv-builder/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "@nx/angular": "22.3.3",
+    "@nx/js": "22.3.3",
+    "@nx/nest": "22.3.3",
+    "@nx/workspace": "22.3.3",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "nx": "22.3.3",
+    "typescript": "~5.9.2"
+  }
+}
