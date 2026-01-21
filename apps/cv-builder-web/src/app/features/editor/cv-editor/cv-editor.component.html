@@ -1,0 +1,151 @@
+<div class="flex h-screen w-full bg-gray-100 overflow-hidden">
+    <!-- Left Side: Editor Form -->
+    <div class="w-1/2 flex flex-col border-r border-gray-300 bg-white shadow-lg z-10">
+        <header class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-800">Editor</h2>
+            <div class="space-x-2">
+                <button class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Save</button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300">
+            <form [formGroup]="cvForm" (ngSubmit)="onSubmit()" class="space-y-6">
+                <!-- Main Details -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="cv-title" class="block text-sm font-medium text-gray-700">CV Title</label>
+                        <input id="cv-title" formControlName="title" type="text"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
+                    </div>
+
+                    <div formGroupName="personalInfo"
+                        class="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h3 class="font-bold text-gray-700">Personal Info</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="full-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                                <input id="full-name" formControlName="fullName" type="text"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                                    [class.border-red-500]="cvForm.get('personalInfo.fullName')?.invalid && cvForm.get('personalInfo.fullName')?.touched">
+                                @if (cvForm.get('personalInfo.fullName')?.invalid &&
+                                cvForm.get('personalInfo.fullName')?.touched) {
+                                <span class="text-xs text-red-500">Full Name is required</span>
+                                }
+                            </div>
+                            <div>
+                                <label for="job-title" class="block text-sm font-medium text-gray-700">Job Title</label>
+                                <input id="job-title" formControlName="jobTitle" type="text"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input id="email" formControlName="email" type="email"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                                    [class.border-red-500]="cvForm.get('personalInfo.email')?.invalid && cvForm.get('personalInfo.email')?.touched">
+                                @if (cvForm.get('personalInfo.email')?.errors?.['required'] &&
+                                cvForm.get('personalInfo.email')?.touched) {
+                                <span class="text-xs text-red-500">Email is required</span>
+                                }
+                                @if (cvForm.get('personalInfo.email')?.errors?.['email'] &&
+                                cvForm.get('personalInfo.email')?.touched) {
+                                <span class="text-xs text-red-500">Invalid email format</span>
+                                }
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                                <input id="phone" formControlName="phone" type="text"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sections FormArray -->
+                <div formArrayName="sections" class="space-y-6" cdkDropList (cdkDropListDropped)="dropSection($event)">
+                    @for (section of sections.controls; track i; let i = $index) {
+                    <div [formGroupName]="i" cdkDrag class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                        <div class="bg-gray-100 p-3 flex justify-between items-center border-b border-gray-200 cursor-move"
+                            cdkDragHandle>
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-400">☰</span>
+                                <input formControlName="title"
+                                    class="bg-transparent font-bold text-gray-700 focus:outline-none border-b border-dashed border-gray-400 focus:border-blue-500" />
+                            </div>
+                            <button type="button" (click)="removeSection(i)"
+                                class="text-red-500 hover:text-red-700 text-sm">Remove</button>
+                        </div>
+
+                        <div class="p-4 space-y-4">
+                            <div formArrayName="items" class="space-y-4" cdkDropList
+                                (cdkDropListDropped)="dropItem($event, i)">
+                                @for (item of getItems(i).controls; track j; let j = $index) {
+                                <div [formGroupName]="j" cdkDrag
+                                    class="flex gap-2 items-start bg-white p-2 border rounded">
+                                    <div class="cursor-move text-gray-400 mt-2" cdkDragHandle>☰</div>
+                                    <div class="flex-1 space-y-2">
+                                        <input formControlName="title" placeholder="Title (e.g. Company)"
+                                            class="w-full text-sm font-medium p-1 border rounded">
+                                        <input formControlName="subtitle" placeholder="Subtitle (e.g. Role)"
+                                            class="w-full text-xs text-gray-600 p-1 border rounded">
+                                        <input formControlName="date" placeholder="Date"
+                                            class="w-full text-xs text-gray-500 p-1 border rounded">
+                                        <quill-editor formControlName="description" [styles]="{height: '150px'}"
+                                            class="block bg-white w-full"></quill-editor>
+                                    </div>
+                                    <button type="button" (click)="removeItem(i, j)"
+                                        class="text-gray-400 hover:text-red-500">×</button>
+                                </div>
+                                }
+                            </div>
+                            <button type="button" (click)="addItem(i)"
+                                class="text-sm text-blue-600 hover:text-blue-800">+ Add Item</button>
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <button type="button" (click)="addSection()"
+                    class="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600">
+                    + Add Section
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Side: Live Preview -->
+    <div class="w-1/2 flex flex-col bg-gray-500 relative">
+        <header
+            class="p-4 border-b border-gray-600 bg-gray-800 text-white flex justify-between items-center z-10 shadow-md">
+            <h2 class="text-xl font-bold">Preview</h2>
+            <div class="flex items-center gap-4">
+                <select [value]="activeTemplate" (change)="activeTemplate = $any($event.target).value"
+                    class="bg-gray-700 text-white border border-gray-600 rounded px-2 py-1 text-sm">
+                    <option value="professional">Professional</option>
+                    <option value="creative">Creative</option>
+                </select>
+                <button (click)="downloadPdf()" [disabled]="isDownloadingPdf"
+                    class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    @if (isDownloadingPdf) {
+                    <span class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                    <span>Generating...</span>
+                    } @else {
+                    Download PDF
+                    }
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 flex justify-center bg-gray-500">
+            <!-- Template Rendering -->
+            <div #previewContainer
+                class="bg-white shadow-2xl w-[210mm] min-h-[297mm] transform hover:scale-[1.01] transition-transform duration-200 ease-in-out">
+                @if (activeTemplate === 'professional') {
+                <app-professional-template [data]="cvData"></app-professional-template>
+                }
+                @if (activeTemplate === 'creative') {
+                <app-creative-template [data]="cvData"></app-creative-template>
+                }
+            </div>
+        </div>
+    </div>
+</div>

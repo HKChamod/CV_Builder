@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: cv_builder
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  cv-builder-api:
+    build:
+      context: .
+      dockerfile: apps/cv-builder-api/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres_password
+      DB_NAME: cv_builder
+    depends_on:
+      - postgres
+
+  cv-builder-web:
+    build:
+      context: .
+      dockerfile: apps/cv-builder-web/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - cv-builder-api
+
+volumes:
+  postgres_data:
